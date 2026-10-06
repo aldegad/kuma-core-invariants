@@ -54,7 +54,7 @@ Keep the project and its instructions simple — the eight are held with the lea
 
 - Add a guard or test only when it catches a real failure nothing else catches.
 - Clean up legacy code in the change that touches it.
-- Run only the tests your change can affect — the subtree it touched (2).
+- Run only the tests the changed behavior can affect — the branch you changed plus the consumers that depend on it, even on other branches.
 
 ## Why these eight
 
