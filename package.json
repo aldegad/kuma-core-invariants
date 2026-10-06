@@ -1,6 +1,6 @@
 {
   "name": "alex-core-invariants",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "Canonical eight fixed invariants for AI-assisted engineering.",
   "type": "module",
   "license": "MIT",

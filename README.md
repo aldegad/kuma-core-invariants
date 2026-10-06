@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>v2.1.1</strong> · Eight fixed invariants for AI-assisted engineering
+  <strong>v2.2.0</strong> · Eight fixed invariants for AI-assisted engineering
 </p>
 
 # Alex's Eight Invariants
@@ -24,11 +24,11 @@ This must be obeyed.
 
 ## The Eight Invariants
 
-1. `SSoT (Single Source of Truth)` — **Two truths stay two truths, no matter which model reads them.**  
-   Every truth the system depends on must have one canonical owner. Two concurrent canonical paths are not allowed. If cache or index state drifts, live truth should repair canonical state instead of creating a second truth.
+1. `SSoT (Single Source of Truth)` — **A copy is a second truth, and two truths stay two truths no matter which model reads them.**  
+   Every truth the system depends on — data, state, wording, features, tests — must have one canonical owner; everything else links to it. Two concurrent canonical paths are not allowed. A duplicated sentence, feature, or test drifts from its owner, slows every run, and loads the infra. If cache or index state drifts, live truth should repair canonical state instead of creating a second truth. Live text states the current rule; history belongs in version control or a changelog.
 
 2. `SoC / SRP (Separation of Concerns / Single Responsibility)` — **Mixed responsibility survives every refactor until nothing can be changed without breaking something else.**  
-   Different concerns belong in separate boundaries — architecture and domain level (SoC), module, file, and function level (SRP). When one boundary carries two concerns, split it.
+   Code, docs, and tests form one domain taxonomy tree. As in kingdom → phylum → class → order → family → genus → species, every unit has exactly one parent, and a reader descends from the largest domain to the smallest unit without crossing branches. The upper ranks are architecture and domain boundaries (SoC); the lower ranks are module, file, and function (SRP). When one node carries two concerns, split it. Tests sit in the same tree as the code they cover.
 
 3. `Consistency` — **Contradictions don't heal with time. They compound.**  
    Data, state, and representation should not contradict each other across the system.
@@ -43,14 +43,22 @@ This must be obeyed.
    `fallback`, `legacy`, and `shadow path` patterns are not allowed when they silently hide failure or create a second truth. Explicit failover for availability is allowed, but it must be observable and must not change canonical truth.
 
 7. `Doc-first & Plan-first` — **The hour you spend guessing is the minute you refused to read. The week you spend rebuilding is the half-hour you refused to plan.**  
-   Two things come before the work, not after. (a) **Doc-first**: standardized domains (Cloudflare, HTTP encoding, OAuth, browser APIs, AWS/GCP, Kubernetes, build toolchains, etc.) have answers that already live inside one page of official documentation. On a problem in such a domain, the first action is searching the official docs, not dispatching a hypothesis to a worker (or a human). Hypothesis-first work is justified only when the question lives in our own code, our domain rules, or an edge the docs do not cover. (b) **Plan-first**: any non-trivial work goes into a written plan before the first commit. The plan's phases are what trigger doc-first at the right entry points, what give a sequence to recover when something breaks, and what stop ad-hoc fix → commit → deploy spirals. Skipping the plan is justified only on truly trivial one-step work. Twenty years of human engineering — and now AI agents — keep losing one to three hours per problem to the same two skipped steps: Stack Overflow first, docs never; ad-hoc fix first, plan never. This invariant exists because that pattern is structural, not personal.
+   Two things come before the work, not after. (a) **Doc-first**: standardized domains (Cloudflare, HTTP encoding, OAuth, browser APIs, AWS/GCP, Kubernetes, build toolchains, etc.) have answers that already live inside one page of official documentation. On a problem in such a domain, the first action is searching the official docs, not dispatching a hypothesis to a worker (or a human). Hypothesis-first work is justified only when the question lives in our own code, our domain rules, or an edge the docs do not cover. (b) **Plan-first**: any non-trivial work goes into a written plan before the first commit. The plan's phases are what trigger doc-first at the right entry points, what give a sequence to recover when something breaks, and what stop ad-hoc fix → commit → deploy spirals. Skipping the plan is justified only on truly trivial one-step work.
 
-8. `Isolation` — **Concurrency is a design surface, not a backend detail.**
-   Any shared mutable state that can be touched by two actors at once needs an explicit isolation policy. This includes database rows, files, queues, object manifests, caches, in-memory maps, session state, agent runtime state, and UI/server mutation paths. Read-modify-write counters, limit-check-then-insert flows, chained writes, "latest row" hash chains, multi-worker caches, and two agents editing the same truth all need a *named* strategy: atomic operation, single-writer queue, actor/Durable Object, file lock, lease, idempotency key plus unique constraint, `SELECT ... FOR UPDATE`, advisory lock, `SERIALIZABLE` transaction, or an external coordinator. A database default such as Postgres `READ COMMITTED` is only one example of a lower-level mechanism; it is not the application policy. "The framework handles it" is not a strategy. Skipping this invariant is the failure mode AI review keeps missing because the model assumes a platform default is the boundary.
+8. `Isolation` — **Concurrency is a design surface, not a backend detail.**  
+   Any shared mutable state that can be touched by two actors at once needs an explicit isolation policy. This includes database rows, files, queues, object manifests, caches, in-memory maps, session state, agent runtime state, and UI/server mutation paths. Read-modify-write counters, limit-check-then-insert flows, chained writes, "latest row" hash chains, multi-worker caches, and two agents editing the same truth all need a *named* strategy: atomic operation, single-writer queue, actor/Durable Object, file lock, lease, idempotency key plus unique constraint, `SELECT ... FOR UPDATE`, advisory lock, `SERIALIZABLE` transaction, or an external coordinator. A platform default such as Postgres `READ COMMITTED` is a lower-level mechanism, not the application policy — "the framework handles it" is not a strategy.
+
+## Simplicity
+
+Keep the project and its instructions simple — the eight are held with the least structure that works. Every guard, test, and instruction is something to own, run, and keep consistent, so each one has to earn its place.
+
+- Add a guard or test only when it catches a real failure nothing else catches.
+- Clean up legacy code in the change that touches it.
+- Run only the tests your change can affect — the subtree it touched (2).
 
 ## Why these eight
 
-Each invariant names a failure mode the adapter cannot route around. Cache drift, mixed responsibility, contradictory representation, half-written state, retry damage, hidden fallback, time burned on guess work, and shared state races — get one wrong and no amount of prompt tuning, retry logic, or model upgrade will save you. The failure is structural.
+Each invariant names a structural failure the adapter cannot route around — get one wrong and no amount of prompt tuning, retry logic, or model upgrade will save you.
 
 The core/adapter split is also what makes aggressive adapter work safe. You can tune the adapter hard for this month's model precisely because the core underneath does not move. Invert the assumption — let the core drift to accommodate model quirks — and the adapter loses its anchor. The harness starts absorbing problems it was supposed to route around.
 
@@ -58,21 +66,19 @@ Every debate about longevity ("build for next year's model") versus efficiency (
 
 ## About this repo
 
-`alex-core-invariants` is a small canonical policy repo for AI-assisted engineering. The point is simple: keep the invariant text in one place, link to it from other repos, and avoid letting the policy itself drift.
+`alex-core-invariants` is a small canonical policy repo for AI-assisted engineering: the invariant text lives in one place, and other repos link to it instead of copying it.
 
 ## Repo Layout
 
-- `README.md`: canonical policy text (single source of truth)
-- `README.ko.md`: Korean translation — derived artifact, never the canonical source
-- `SKILL.md`: lightweight agent workflow that defers to `README.md`
-- `checks/`: small verification scripts
+- `README.md`: canonical policy text — the only definition
+- `README.ko.md`: Korean translation — derived, pinned to a `README.md` revision by its `source-sha` header
+- `SKILL.md`: agent workflow that defers to `README.md`
+- `checks/`: shallow verification scripts — this repo is not a framework
 - `scripts/`: helper scripts (translation stamping)
 - `.githooks/`: repo-local git hooks (opt-in via `npm run setup`)
 - `examples/AGENTS.md`: drop-in usage example for other repos
 
 ## Usage
-
-Keep the policy text linked, not copied, wherever possible.
 
 ```bash
 npm run check
@@ -87,20 +93,7 @@ One-time setup to enable the pre-commit hook:
 npm run setup
 ```
 
-When you edit `README.md`, update `README.ko.md` to match (manually, or via any LLM) and then run:
-
-```bash
-npm run translate
-```
-
-This restamps `README.ko.md` with the current `README.md` source-sha. The pre-commit hook blocks commits where the two are out of sync.
-
-## Design Notes
-
-- `README.md` is the only canonical policy definition in this repo.
-- `README.ko.md` is a derived artifact, not a second source. A `source-sha` header pins it to a specific `README.md` revision; the pre-commit hook blocks drift. This preserves the SSoT invariant for the policy text itself.
-- `SKILL.md` should guide behavior, not become a second full copy of the policy.
-- Checks should stay shallow and opinionated. This repo is not a framework.
+When you edit `README.md`, retranslate `README.ko.md`, then run `npm run translate` to restamp its `source-sha`. The pre-commit hook blocks commits where the two are out of sync.
 
 ## License
 
