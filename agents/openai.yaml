@@ -1,4 +1,4 @@
 interface:
-  display_name: "Alex Core Invariants"
+  display_name: "Kuma Core Invariants"
   short_description: "Review work against the eight fixed core invariants."
   default_prompt: "Review this code or plan against Alex's eight invariants, then report the smallest structural fixes."

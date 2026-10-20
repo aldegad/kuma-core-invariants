@@ -1,9 +1,9 @@
 ---
-name: alex-core-invariants
+name: kuma-core-invariants
 description: "Use when reviewing architecture, refactors, state/data ownership, duplication, code and test structure, failure handling, debug discipline, work-in-progress hygiene, or concurrency policy against Alex's eight fixed invariants."
 ---
 
-# Alex Core Invariants Skill
+# Kuma Core Invariants Skill
 
 ## Source of Truth
 

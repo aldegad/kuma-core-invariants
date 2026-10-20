@@ -66,7 +66,7 @@ Every debate about longevity ("build for next year's model") versus efficiency (
 
 ## About this repo
 
-`alex-core-invariants` is a small canonical policy repo for AI-assisted engineering: the invariant text lives in one place, and other repos link to it instead of copying it.
+`kuma-core-invariants` is a small canonical policy repo for AI-assisted engineering: the invariant text lives in one place, and other repos link to it instead of copying it.
 
 ## Repo Layout
 
