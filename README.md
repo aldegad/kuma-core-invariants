@@ -12,16 +12,6 @@
 
 This must be obeyed.
 
-> A good harness does not worship the model. It observes failure, swaps the adapter, preserves the core's truth.
->
-> The model changes. The adapter is thrown away. The core remains. That core holds invariants that do not move — not through a model swap, not through a framework rewrite, not through an adapter you ship and throw away.
->
-> SSoT · SoC/SRP · Consistency · Atomicity · Idempotency · No Silent Fallback · Doc-first & Plan-first · Isolation
->
-> All eight govern the system and the work of shipping it. They protect structural truth, disciplined work entry, and shared mutable boundaries when two actors move at the same time.
->
-> This repo is about that core only — the structural failures no adapter can paper over.
-
 ## The Eight Invariants
 
 1. `SSoT (Single Source of Truth)` — **A copy is a second truth, and two truths stay two truths no matter which model reads them.**  
@@ -55,14 +45,6 @@ Keep the project and its instructions simple — the eight are held with the lea
 - Add a guard or test only when it catches a real failure nothing else catches.
 - Clean up legacy code in the change that touches it.
 - Run only the tests the changed behavior can affect — the branch you changed plus the consumers that depend on it, even on other branches.
-
-## Why these eight
-
-Each invariant names a structural failure the adapter cannot route around — get one wrong and no amount of prompt tuning, retry logic, or model upgrade will save you.
-
-The core/adapter split is also what makes aggressive adapter work safe. You can tune the adapter hard for this month's model precisely because the core underneath does not move. Invert the assumption — let the core drift to accommodate model quirks — and the adapter loses its anchor. The harness starts absorbing problems it was supposed to route around.
-
-Every debate about longevity ("build for next year's model") versus efficiency ("squeeze this month's model dry") dissolves under this split. Longevity lives in the core. Efficiency lives in the adapter. Forcing one layer to do both jobs is how harnesses rot.
 
 ## About this repo
 
