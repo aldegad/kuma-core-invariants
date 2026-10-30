@@ -1,6 +1,6 @@
 {
   "name": "kuma-core-invariants",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Canonical eight fixed invariants for AI-assisted engineering.",
   "type": "module",
   "license": "MIT",

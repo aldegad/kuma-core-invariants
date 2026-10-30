@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>v2.2.0</strong> · Eight fixed invariants for AI-assisted engineering
+  <strong>v2.3.0</strong> · Eight fixed invariants for AI-assisted engineering
 </p>
 
 # Alex's Eight Invariants
@@ -15,7 +15,7 @@ This must be obeyed.
 ## The Eight Invariants
 
 1. `SSoT (Single Source of Truth)` — **A copy is a second truth, and two truths stay two truths no matter which model reads them.**  
-   Every truth the system depends on — data, state, wording, features, tests — must have one canonical owner; everything else links to it. Two concurrent canonical paths are not allowed. A duplicated sentence, feature, or test drifts from its owner, slows every run, and loads the infra. If cache or index state drifts, live truth should repair canonical state instead of creating a second truth. Live text states the current rule; history belongs in version control or a changelog.
+   Every truth the system depends on — data, state, wording, features, tests — must have one canonical owner; everything else links to it. Two concurrent canonical paths are not allowed. A duplicated sentence, feature, or test drifts from its owner, slows every run, and loads the infra. Names in code are truths too: a key, state, kind, code, or field name that more than one place writes, reads, or branches on is declared once, as a constant, an enum, or a typed schema, and every use refers to that declaration, so the compiler or one test catches a typo. Spelling the same raw string across `switch` cases and `put("…")` calls makes every copy a second truth that no one can find in full. If cache or index state drifts, live truth should repair canonical state instead of creating a second truth. Live text states the current rule; history belongs in version control or a changelog.
 
 2. `SoC / SRP (Separation of Concerns / Single Responsibility)` — **Mixed responsibility survives every refactor until nothing can be changed without breaking something else.**  
    Code, docs, and tests form one domain taxonomy tree. As in kingdom → phylum → class → order → family → genus → species, every unit has exactly one parent, and a reader descends from the largest domain to the smallest unit without crossing branches. The upper ranks are architecture and domain boundaries (SoC); the lower ranks are module, file, and function (SRP). When one node carries two concerns, split it. Tests sit in the same tree as the code they cover.
